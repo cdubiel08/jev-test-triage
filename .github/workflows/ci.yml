@@ -31,3 +31,24 @@ jobs:
       - uses: raven-actions/actionlint@v2
         with:
           files: "examples/github/*.yml,.github/workflows/*.yml"
+
+  action-selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: jtt
+        uses: ./
+        with:
+          reports: mutants.fixture.jsonl
+          working-directory: examples/demo
+          offline: "true"
+          cache-dir: ../../tests/fixtures/demo-cache
+      - name: Check outputs
+        env:
+          ACT: ${{ steps.jtt.outputs.act }}
+          HAS: ${{ steps.jtt.outputs.has_findings }}
+          PROMPT: ${{ steps.jtt.outputs.prompt_file }}
+        run: |
+          echo "act=$ACT has_findings=$HAS prompt=$PROMPT"
+          test "$ACT" -gt 0 && test "$HAS" = true
+          test -s "examples/demo/$PROMPT"

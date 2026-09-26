@@ -101,7 +101,9 @@ block on a missing key.
     fail-on: never          # or act / review
 ```
 
-Outputs: `act`, `review`, `weak`, `has_findings`, `prompt_file`, `sarif_file`. The step
+To triage reports you produce yourself (for example a Stryker step), pass
+`reports: path/to/mutation.json` instead of letting the action mutate changed Python
+lines. Outputs: `act`, `review`, `weak`, `has_findings`, `prompt_file`, `sarif_file`. The step
 summary shows the ranked table. In CI a missing key fails the step (`--require-key`), so a
 run cannot go green having judged nothing.
 

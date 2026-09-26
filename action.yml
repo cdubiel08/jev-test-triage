@@ -8,8 +8,8 @@ branding:
   color: purple
 inputs:
   typesafe-api-key:
-    description: TypeSafe API key (store it as a repository secret).
-    required: true
+    description: TypeSafe API key (store it as a repository secret). Required unless offline.
+    default: ""
   base-ref:
     description: Git ref to diff against. Defaults to the pull request's base branch.
     default: ""
@@ -26,8 +26,22 @@ inputs:
     description: Optional command to run first, e.g. an incremental Stryker run that writes mutation.json.
     default: ""
   out-dir:
-    description: Where reports are written.
+    description: Where reports are written (relative to working-directory).
     default: .jtt
+  reports:
+    description: >-
+      Space-separated mutation reports to triage instead of mutating changed lines
+      (Stryker mutation.json or jtt JSONL), e.g. from your own Stryker step.
+    default: ""
+  working-directory:
+    description: Repository root for jtt (paths in reports are relative to it).
+    default: .
+  offline:
+    description: Replay cached answers only (for testing without a key).
+    default: "false"
+  cache-dir:
+    description: Jev answer cache (relative to working-directory). Defaults to <out-dir>/cache.
+    default: ""
 outputs:
   act:
     description: Number of surviving mutants judged worth a test.
@@ -46,15 +60,16 @@ outputs:
     value: ${{ steps.jtt.outputs.prompt_file }}
   sarif_file:
     description: Path to the SARIF report.
-    value: ${{ inputs.out-dir }}/results.sarif
+    value: ${{ inputs.working-directory }}/${{ inputs.out-dir }}/results.sarif
 runs:
   using: composite
   steps:
     - uses: astral-sh/setup-uv@v6
     - name: Cache Jev answers
+      if: inputs.offline != 'true'
       uses: actions/cache@v4
       with:
-        path: ${{ inputs.out-dir }}/cache
+        path: ${{ inputs.working-directory }}/${{ inputs.cache-dir || format('{0}/cache', inputs.out-dir) }}
         key: jtt-${{ github.sha }}
         restore-keys: jtt-
     - name: Pre-command
@@ -64,10 +79,21 @@ runs:
     - id: jtt
       name: Triage
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       env:
         TYPESAFE_API_KEY: ${{ inputs.typesafe-api-key }}
         BASE: ${{ inputs.base-ref || format('origin/{0}', github.base_ref || github.event.repository.default_branch) }}
+        REPORTS: ${{ inputs.reports }}
+        OFFLINE: ${{ inputs.offline }}
+        JTT: uvx --from ${{ github.action_path }} jtt
       run: |
-        git fetch --no-tags --depth=200 origin "${BASE#origin/}" 2>/dev/null || true
-        uvx --from "${{ github.action_path }}" jtt ci --base "$BASE" --config "${{ inputs.config }}" \
-          --budget "${{ inputs.budget }}" --fail-on "${{ inputs.fail-on }}" --out-dir "${{ inputs.out-dir }}" --require-key
+        common=(--budget "${{ inputs.budget }}" --fail-on "${{ inputs.fail-on }}" --out-dir "${{ inputs.out-dir }}"
+                --cache "${{ inputs.cache-dir || format('{0}/cache', inputs.out-dir) }}")
+        if [[ "$OFFLINE" == "true" ]]; then common+=(--offline); else common+=(--require-key); fi
+        if [[ -n "$REPORTS" ]]; then
+          # shellcheck disable=SC2086
+          $JTT triage $REPORTS "${common[@]}"
+        else
+          git fetch --no-tags --depth=200 origin "${BASE#origin/}" 2>/dev/null || true
+          $JTT ci --base "$BASE" --config "${{ inputs.config }}" "${common[@]}"
+        fi
