@@ -1,0 +1,1 @@
+{"uids": ["cookie-es/src/cookie/parse.ts:34:3"], "out": {"labels": [{"id": "cookie-es/src/cookie/parse.ts:34:3", "equivalent": false, "effect": "behavior", "worth": 2, "note": "2-char header 'a=' returns {} instead of {a:''}; comment documents 2 as the valid minimum boundary."}]}, "cost": 0.0316384}

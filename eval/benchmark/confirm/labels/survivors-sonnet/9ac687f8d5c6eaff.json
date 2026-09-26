@@ -1,0 +1,1 @@
+{"uids": ["cachetools/src/cachetools/_cachedmethod.py:112:77"], "out": {"labels": [{"id": "cachetools/src/cachetools/_cachedmethod.py:112:77", "equivalent": false, "effect": "message_text", "worth": 1, "note": "Only changes warning's reported stack frame/filename, not functional behavior; hard/low-value to test."}]}, "cost": 0.038237400000000005}

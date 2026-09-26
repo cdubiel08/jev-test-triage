@@ -1,0 +1,33 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --extra eval
+      - run: uv run ruff check src eval tests
+      - run: uv run pytest -q
+      # End to end without an API key: the demo's Jev answers are replayed from the cache.
+      - name: Demo triage (offline)
+        working-directory: examples/demo
+        run: |
+          uv run --project ../.. jtt triage mutants.fixture.jsonl --offline \
+            --cache ../../tests/fixtures/demo-cache --out-dir .jtt --top 5
+          test -s .jtt/summary.md && test -s .jtt/results.sarif
+      - name: Recompute the published lockbox metrics
+        run: |
+          B=eval/benchmark
+          uv run python eval/analyze.py survivors $B/results/oss --data $B/oss --labels $B/oss/labels \
+            --split lockbox --variants a0,ship --ref a0 --boot 200
+      - uses: raven-actions/actionlint@v2
+        with:
+          files: "examples/github/*.yml,.github/workflows/*.yml"

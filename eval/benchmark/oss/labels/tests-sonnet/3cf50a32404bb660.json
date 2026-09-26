@@ -1,0 +1,1 @@
+{"uids": ["humanize/tests/test_number.py::test_metric"], "out": {"labels": [{"id": "humanize/tests/test_number.py::test_metric", "weakness": 0, "loose_only": false, "mock_only": false, "restates_impl": false, "name_mismatch": false, "no_assertion": false, "note": "Parametrized test asserts exact expected string for each case."}]}, "cost": 0.0076673999999999996}

@@ -1,0 +1,1 @@
+{"uids": ["ufo/src/utils.ts:11:231"], "out": {"labels": [{"id": "ufo/src/utils.ts:11:231", "equivalent": false, "effect": "behavior", "worth": 3, "note": "\\S matches slashes and colons, so '/p?u=http://x' counts as a strict protocol; whitespace-prefixed schemes are missed, a security risk."}]}, "cost": 0.09627440000000001}

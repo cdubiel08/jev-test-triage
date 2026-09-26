@@ -1,0 +1,66 @@
+# Same flow with OpenAI Codex: triage on every pull request; the `write-tests` label hands
+# the findings to Codex, and a follow-up step pushes whatever tests it wrote.
+#
+# Secrets: TYPESAFE_API_KEY, OPENAI_API_KEY. Same-repository branches only.
+name: test-triage-codex
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    outputs:
+      has_findings: ${{ steps.jtt.outputs.has_findings }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --all-extras
+      - id: jtt
+        uses: cdubiel08/jev-test-triage@v0.1.0
+        with:
+          typesafe-api-key: ${{ secrets.TYPESAFE_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jtt
+          path: .jtt/*.md
+
+  write-tests:
+    needs: triage
+    if: >-
+      needs.triage.outputs.has_findings == 'true' &&
+      contains(github.event.pull_request.labels.*.name, 'write-tests') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --all-extras
+      - uses: actions/download-artifact@v4
+        with:
+          name: jtt
+          path: .jtt
+      - uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          prompt-file: .jtt/agent-prompt.md
+          sandbox: workspace-write
+          output-file: .jtt/codex-summary.md
+      - name: Push the new tests
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- ':!.jtt'
+          git diff --cached --quiet && exit 0
+          git commit -m "test: add tests for surviving mutants (Codex via jev-test-triage)"
+          git push

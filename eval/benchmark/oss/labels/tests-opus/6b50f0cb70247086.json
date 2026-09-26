@@ -1,0 +1,1 @@
+{"uids": ["humanize/tests/test_filesize.py::test_naturalsize"], "out": {"labels": [{"id": "humanize/tests/test_filesize.py::test_naturalsize", "weakness": 0, "loose_only": false, "mock_only": false, "restates_impl": false, "name_mismatch": false, "no_assertion": false, "note": "Parametrized exact string comparisons, including negated inputs."}]}, "cost": 0.008963800000000001}

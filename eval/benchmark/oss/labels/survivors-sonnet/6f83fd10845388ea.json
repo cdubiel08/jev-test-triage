@@ -1,0 +1,1 @@
+{"uids": ["ufo/src/utils.ts:16:255"], "out": {"labels": [{"id": "ufo/src/utils.ts:16:255", "equivalent": false, "effect": "behavior", "worth": 3, "note": "Removes anchor so replace() strips first internal slash in later segments, corrupting joinURL results, e.g. joinURL('a','b/c')->'a/bc'."}]}, "cost": 0.052979200000000004}

@@ -1,0 +1,1 @@
+{"uids": ["casl/src/RuleIndex.ts:267:350"], "out": {"labels": [{"id": "casl/src/RuleIndex.ts:267:350", "equivalent": true, "effect": "none", "worth": 0, "note": "Tail never has next, so the mutant falls through to set(event, null); readers treat null as absent, so nothing observable changes."}]}, "cost": 0.0522042}

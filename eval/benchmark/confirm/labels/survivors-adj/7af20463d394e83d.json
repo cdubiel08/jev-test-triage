@@ -1,0 +1,1 @@
+{"uids": ["marshmallow/src/marshmallow/validate.py:496:91"], "out": {"labels": [{"id": "marshmallow/src/marshmallow/validate.py:496:91", "equivalent": false, "effect": "behavior", "worth": 2, "note": "Default flags=1 is re.TEMPLATE: changes pattern.flags, emits DeprecationWarning (3.11+), possibly unsupported later; common default path."}]}, "cost": 0.030194400000000003}

@@ -1,0 +1,72 @@
+# Triage on every pull request; when a maintainer adds the `write-tests` label, hand the
+# findings to Claude Code, which writes killing tests and pushes them to the PR branch.
+#
+# Secrets: TYPESAFE_API_KEY, ANTHROPIC_API_KEY (or CLAUDE_CODE_OAUTH_TOKEN).
+# The agent only runs for same-repository branches, never for forks.
+name: test-triage
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    outputs:
+      has_findings: ${{ steps.jtt.outputs.has_findings }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Set up your project so its tests run (e.g. `uv sync`, `pnpm install`).
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --all-extras
+      - id: jtt
+        uses: cdubiel08/jev-test-triage@v0.1.0
+        with:
+          typesafe-api-key: ${{ secrets.TYPESAFE_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jtt
+          path: .jtt/*.md
+
+  write-tests:
+    needs: triage
+    if: >-
+      needs.triage.outputs.has_findings == 'true' &&
+      contains(github.event.pull_request.labels.*.name, 'write-tests') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --all-extras
+      - uses: actions/download-artifact@v4
+        with:
+          name: jtt
+          path: .jtt
+      - id: prompt
+        shell: bash
+        run: |
+          {
+            echo 'text<<JTT_EOF'
+            cat .jtt/agent-prompt.md
+            echo
+            echo 'When you are done, commit the new tests to this branch with a message starting "test:" and push.'
+            echo 'JTT_EOF'
+          } >> "$GITHUB_OUTPUT"
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: ${{ steps.prompt.outputs.text }}
+          claude_args: >-
+            --max-turns 40
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(uv run pytest:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(git diff:*),Bash(git status:*)"

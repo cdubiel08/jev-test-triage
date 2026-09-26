@@ -1,0 +1,1 @@
+{"uids": ["packaging/src/packaging/markers.py:267:63"], "out": {"labels": [{"id": "packaging/src/packaging/markers.py:267:63", "equivalent": true, "effect": "none", "worth": 0, "note": "Fallthrough returns same (lhs, rhs); the skipped assert can't fail because extra rhs is always a string."}]}, "cost": 0.08381040000000001}

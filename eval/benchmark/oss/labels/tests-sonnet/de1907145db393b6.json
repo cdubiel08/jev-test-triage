@@ -1,0 +1,1 @@
+{"uids": ["ufo/test/parse.test.ts::parseFilename > works"], "out": {"labels": [{"id": "ufo/test/parse.test.ts::parseFilename > works", "weakness": 0, "loose_only": false, "mock_only": false, "restates_impl": false, "name_mismatch": false, "no_assertion": false, "note": "Checks exact expected filename output for a given path."}]}, "cost": 0.0046308}

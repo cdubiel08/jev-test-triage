@@ -1,0 +1,1 @@
+{"uids": ["cachetools/src/cachetools/_cachedmethod.py:112:77"], "out": {"labels": [{"id": "cachetools/src/cachetools/_cachedmethod.py:112:77", "equivalent": false, "effect": "message_text", "worth": 1, "note": "Stacklevel only changes which caller the DeprecationWarning is attributed to; a minor diagnostic detail."}]}, "cost": 0.0583882}

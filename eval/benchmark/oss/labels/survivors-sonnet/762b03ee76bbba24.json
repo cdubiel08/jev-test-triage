@@ -1,0 +1,1 @@
+{"uids": ["humanize/src/humanize/number.py:598:264"], "out": {"labels": [{"id": "humanize/src/humanize/number.py:598:264", "equivalent": false, "effect": "behavior", "worth": 2, "note": "Breaks unit=='\u2033' no-space-before-unit rule; e.g. metric(1,'\u2033') would wrongly get a space."}]}, "cost": 0.050438}

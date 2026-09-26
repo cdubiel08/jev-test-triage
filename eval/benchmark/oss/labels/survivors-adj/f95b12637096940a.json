@@ -1,0 +1,1 @@
+{"uids": ["casl/src/ForbiddenError.ts:36:66"], "out": {"labels": [{"id": "casl/src/ForbiddenError.ts:36:66", "equivalent": false, "effect": "behavior", "worth": 2, "note": "error.name is public identity; consumers match name==='ForbiddenError' when instanceof fails across realms/serialization."}]}, "cost": 0.0213144}

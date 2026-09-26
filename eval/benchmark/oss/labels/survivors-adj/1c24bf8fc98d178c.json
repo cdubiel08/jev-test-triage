@@ -1,0 +1,1 @@
+{"uids": ["itsdangerous/src/itsdangerous/serializer.py:210:10"], "out": {"labels": [{"id": "itsdangerous/src/itsdangerous/serializer.py:210:10", "equivalent": false, "effect": "behavior", "worth": 1, "note": "want_bytes(None) returns None; a str salt stays str in self.salt, but Signer converts it, so signatures are unchanged."}]}, "cost": 0.08277040000000001}

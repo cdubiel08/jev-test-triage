@@ -1,0 +1,1 @@
+{"uids": ["packaging/src/packaging/utils.py:288:57"], "out": {"labels": [{"id": "packaging/src/packaging/utils.py:288:57", "equivalent": true, "effect": "none", "worth": 0, "note": "typing.cast ignores its type argument at runtime; this only changes a type annotation string."}]}, "cost": 0.0645362}

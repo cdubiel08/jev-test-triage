@@ -1,0 +1,1 @@
+{"uids": ["casl/src/RuleIndex.ts:267:350"], "out": {"labels": [{"id": "casl/src/RuleIndex.ts:267:350", "equivalent": false, "effect": "behavior", "worth": 2, "note": "Changes singleton-item deletion condition; unsubscribing the only handler no longer removes the event map entry."}]}, "cost": 0.029581200000000002}

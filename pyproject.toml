@@ -1,0 +1,35 @@
+[project]
+name = "jev-test-triage"
+version = "0.1.0"
+description = "Triage surviving mutants and weak tests with TypeSafe Jev System One judgments"
+readme = "README.md"
+authors = [
+    { name = "Chad Dubiel" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "typesafe-sdk>=0.7.1",
+]
+
+[project.scripts]
+jtt = "jev_test_triage.cli:main"
+
+[project.optional-dependencies]
+eval = ["numpy>=2", "scikit-learn>=1.5"]
+
+[build-system]
+requires = ["uv_build>=0.10.12,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["examples/demo"]

@@ -1,0 +1,23 @@
+# Hooks for https://pre-commit.com.
+
+# Lints test functions that overlap staged changes: no assertion, loose checks only,
+# mock calls only, a single assertion. Deterministic and needs no API key. Add
+# `args: [--jev]` for Jev's advisory judgments (needs TYPESAFE_API_KEY), and
+# `--fail-on-weak` to block the commit instead of warning.
+- id: jtt-weak-tests
+  name: jev-test-triage weak tests
+  entry: jtt weak-tests --changed-only --out-dir .jtt/pre-commit
+  language: python
+  files: (^|/)(test_[^/]*\.py|[^/]*_test\.py|[^/]*\.(test|spec)\.(ts|tsx|js|jsx|mjs))$
+  require_serial: true
+
+# Mutates the staged lines of Python modules listed in .jtt.toml, then triages the
+# survivors with Jev (needs TYPESAFE_API_KEY; without it the hook prints a notice and
+# passes). Slower (one test run per mutant), so it runs at pre-push by default.
+- id: jtt-mutants
+  name: jev-test-triage mutants on staged Python lines
+  entry: jtt ci --staged --no-weak --out-dir .jtt/pre-commit
+  language: python
+  pass_filenames: false
+  require_serial: true
+  stages: [pre-push, manual]

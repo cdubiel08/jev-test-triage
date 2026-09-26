@@ -1,0 +1,73 @@
+name: jev-test-triage
+description: >-
+  Mutate the Python lines a pull request changed (and/or read Stryker reports), rank
+  surviving mutants and weak tests with TypeSafe Jev, and write a step summary, SARIF,
+  and a prompt that a coding agent can act on.
+branding:
+  icon: filter
+  color: purple
+inputs:
+  typesafe-api-key:
+    description: TypeSafe API key (store it as a repository secret).
+    required: true
+  base-ref:
+    description: Git ref to diff against. Defaults to the pull request's base branch.
+    default: ""
+  config:
+    description: Path to the jtt config file.
+    default: .jtt.toml
+  budget:
+    description: Maximum Jev spend for this run, in USD.
+    default: "0.50"
+  fail-on:
+    description: "Fail the step when findings reach this bucket: never, act, or review."
+    default: never
+  pre-command:
+    description: Optional command to run first, e.g. an incremental Stryker run that writes mutation.json.
+    default: ""
+  out-dir:
+    description: Where reports are written.
+    default: .jtt
+outputs:
+  act:
+    description: Number of surviving mutants judged worth a test.
+    value: ${{ steps.jtt.outputs.act }}
+  review:
+    description: Number of surviving mutants routed to review.
+    value: ${{ steps.jtt.outputs.review }}
+  weak:
+    description: Number of changed tests flagged as weak.
+    value: ${{ steps.jtt.outputs.weak }}
+  has_findings:
+    description: "'true' when there is anything to act on."
+    value: ${{ steps.jtt.outputs.has_findings }}
+  prompt_file:
+    description: Path to the agent prompt (agent-prompt.md).
+    value: ${{ steps.jtt.outputs.prompt_file }}
+  sarif_file:
+    description: Path to the SARIF report.
+    value: ${{ inputs.out-dir }}/results.sarif
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v6
+    - name: Cache Jev answers
+      uses: actions/cache@v4
+      with:
+        path: ${{ inputs.out-dir }}/cache
+        key: jtt-${{ github.sha }}
+        restore-keys: jtt-
+    - name: Pre-command
+      if: inputs.pre-command != ''
+      shell: bash
+      run: ${{ inputs.pre-command }}
+    - id: jtt
+      name: Triage
+      shell: bash
+      env:
+        TYPESAFE_API_KEY: ${{ inputs.typesafe-api-key }}
+        BASE: ${{ inputs.base-ref || format('origin/{0}', github.base_ref || github.event.repository.default_branch) }}
+      run: |
+        git fetch --no-tags --depth=200 origin "${BASE#origin/}" 2>/dev/null || true
+        uvx --from "${{ github.action_path }}" jtt ci --base "$BASE" --config "${{ inputs.config }}" \
+          --budget "${{ inputs.budget }}" --fail-on "${{ inputs.fail-on }}" --out-dir "${{ inputs.out-dir }}" --require-key

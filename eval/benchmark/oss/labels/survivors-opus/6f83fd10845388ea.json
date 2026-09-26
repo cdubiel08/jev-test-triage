@@ -1,0 +1,1 @@
+{"uids": ["ufo/src/utils.ts:16:255"], "out": {"labels": [{"id": "ufo/src/utils.ts:16:255", "equivalent": false, "effect": "behavior", "worth": 3, "note": "Without the anchor, joinURL removes the first inner slash: joinURL('/api','users/1') gives '/api/users1'. Common path."}]}, "cost": 0.0888802}
