@@ -79,7 +79,7 @@ ignore_dunder_all = false                # true skips `__all__` entries (fine fo
 
 ```yaml
 - repo: https://github.com/cdubiel08/jev-test-triage
-  rev: v0.1.1
+  rev: v0.1.2
   hooks:
     - id: jtt-weak-tests   # lint staged tests; free, no key
     - id: jtt-mutants      # mutate staged Python lines + triage; pre-push stage by default
@@ -95,7 +95,7 @@ block on a missing key.
   with: { fetch-depth: 0 }
 # ...set up your project so its tests run...
 - id: jtt
-  uses: cdubiel08/jev-test-triage@v0.1.1
+  uses: cdubiel08/jev-test-triage@v0.1.2
   with:
     typesafe-api-key: ${{ secrets.TYPESAFE_API_KEY }}
     fail-on: never          # or act / review

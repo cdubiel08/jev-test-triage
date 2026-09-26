@@ -1,6 +1,6 @@
 [project]
 name = "jev-test-triage"
-version = "0.1.1"
+version = "0.1.2"
 description = "Triage surviving mutants and weak tests with TypeSafe Jev System One judgments"
 readme = "README.md"
 authors = [
